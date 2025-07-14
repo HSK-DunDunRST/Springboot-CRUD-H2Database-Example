@@ -84,13 +84,44 @@ src
 - **사용자 이름**: `sa`
 - **비밀번호**: 없음 (빈칸)
 
+#### H2 데이터베이스 접속 정보 변경 방법
+
+1. 프로젝트의 `src/main/resources` 디렉토리에 `application-local.yml` 파일을 직접 생성해야 합니다.
+2. 생성한 파일에 다음 내용을 입력합니다:
+
+```yml
+spring:
+  datasource:
+    url: jdbc:h2:file:./data/exampledb
+    driverClassName: org.h2.Driver
+    username: 원하는_아이디  # 기본값은 sa
+    password: 원하는_비밀번호  # 기본값은 빈 문자열
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+```
+
+3. `application.yml` 파일에 아래 내용이 있는지 확인하고, 없다면 추가합니다:
+
+```yml
+spring:
+  profiles:
+    active: local  # 이 설정이 있어야 application-local.yml 파일이 활성화됩니다
+```
+
+4. 변경 후 애플리케이션을 재시작하면 새로운 접속 정보가 적용됩니다.
+5. H2 콘솔 로그인 시 변경된 아이디와 비밀번호를 사용해주세요.
+
 ---
 
 ## 애플리케이션 설정
 
-설정 파일은 `src/main/resources/application.properties`에 위치합니다.
+설정 파일은 `src/main/resources/application.yml`에 위치합니다.
 
-| 설정 키 | 설명 |
+설정 항목 설명:
+
+| application.properties 설정 키 | 설명 |
 |---------|------|
 | `spring.application.name` | 애플리케이션 이름 설정 |
 | `server.port` | 웹 서버 포트 설정 (기본값: `8080`) |
@@ -101,5 +132,41 @@ src
 | `spring.datasource.username` | 데이터베이스 접속 ID |
 | `spring.datasource.password` | 데이터베이스 접속 비밀번호 |
 | `spring.h2.console.settings.web-allow-others` | 외부에서 H2 콘솔 접속 허용 여부 |
+| `spring.jpa.hibernate.ddl-auto` | 데이터베이스 스키마 자동 생성 전략 (`create`, `create-drop`, `update`, `validate`, `none`) |
+| `spring.jpa.properties.hibernate.format_sql` | SQL 출력 형식 지정 (`true`: 보기 좋게 포맷팅) |
+| `spring.jpa.properties.hibernate.show_sql` | 실행되는 SQL 쿼리를 로그로 출력 여부 |
+| `spring.profiles.active` | 활성화할 프로필 설정 (예: `local`, `dev`, `prod`) |
 
----
+application.yml 형식 예시:
+```yml
+spring:
+    application:
+        name: h2database
+    profiles:
+        active: local
+```
+
+application-local.yml 형식 예시:
+```yml
+spring:
+    h2:
+        console:
+            enabled: true
+            path: /h2-console
+    datasource:
+        url: jdbc:h2:file:./data/exampledb
+        driverClassName: org.h2.Driver
+        username: 사용할 로그인 아이디
+        password: 사용할 로그인 비밀번호 또는 미설정시 ''
+    jpa:
+        properties:
+            hibernate:
+                dialect: org.hibernate.dialect.H2Dialect
+                '[format_sql]': true
+                '[show_sql]': true
+        hibernate:
+            ddl-auto: update
+
+```
+
+추가 설정 및 세부 사항은 [Spring Boot 공식 문서](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/)를 참고하세요.
